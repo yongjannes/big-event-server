@@ -1,9 +1,12 @@
 package com.jy.bigevent.pojo;
 
-
+import lombok.Data;
 
 import java.time.LocalDateTime;
+//lombok  在编译阶段，为实体类自动生成setter  gettertoString
+//pom引入依赖  在实体类添加注解
 
+@Data
 public class User {
     private Integer id;//主键ID
     private String username;//用户名
