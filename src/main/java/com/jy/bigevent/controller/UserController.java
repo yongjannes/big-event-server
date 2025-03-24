@@ -1,6 +1,7 @@
 package com.jy.bigevent.controller;
 
 
+import ch.qos.logback.core.util.StringUtil;
 import com.jy.bigevent.pojo.Result;
 import com.jy.bigevent.pojo.User;
 import com.jy.bigevent.service.UserService;
@@ -10,6 +11,7 @@ import com.jy.bigevent.utils.ThreadLocalUtil;
 import jakarta.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -87,6 +89,36 @@ public class UserController {
             //更新用户头像
         userService.updateAvatar(avatarUrl);
         return Result.success();
+    }
+
+    @PatchMapping("/updatePwd")
+    public Result updatePwd(@RequestBody Map<String,String> params) {
+//        1. 校验参数
+        String oldPwd = params.get("old_pwd");
+        String newPwd = params.get("new_pwd");
+        String rePwd = params.get("re_pwd");
+
+        if(!StringUtils.hasLength(oldPwd)||!StringUtils.hasLength(newPwd)||!StringUtils.hasLength(rePwd)){
+            return Result.error("参数不能为空");
+        }
+
+        //2. 校验密码
+        Map<String,Object> map = ThreadLocalUtil.get();
+        String username = (String) map.get("username");
+        User user = userService.findByUsername(username);
+        if(!user.getPassword().equals(Md5Util.getMD5String(oldPwd))){
+            return Result.error("原密码错误");
+        }
+
+        //3. 校验密码是否一致
+        if(!rePwd.equals(newPwd)){
+            return Result.error("两次密码不一致");
+        }
+
+        //更新用户密码
+        userService.updatePwd(newPwd);
+        return Result.success();
+
     }
 
 }
