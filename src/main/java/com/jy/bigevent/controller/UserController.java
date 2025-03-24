@@ -4,11 +4,14 @@ package com.jy.bigevent.controller;
 import com.jy.bigevent.pojo.Result;
 import com.jy.bigevent.pojo.User;
 import com.jy.bigevent.service.UserService;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Validated
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -17,7 +20,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public Result register(String username, String password) {
+    public Result register(@Pattern(regexp = "^.{5,16}$") String username, @Pattern(regexp = "^.{5,16}$")String password) {
         //查询用户
         User user = userService.findByUsername(username);
         if(user==null) {
@@ -29,8 +32,5 @@ public class UserController {
             //占用
             return Result.error("用户名已被占用");
         }
-
-
-
     }
 }
